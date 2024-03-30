@@ -1,130 +1,88 @@
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql');
+const User = require('./models/user'); // Import the User model
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// MySQL Connection
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'your_mysql_username',
-  password: 'your_mysql_password',
-  database: 'budget_app',
-});
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/devcation', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error(err));
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log('Connected to MySQL database');
-});
+    
+app.post('/login', async (req, res) => {
+  // Extract username/email and password from request body
+  const { usernameOrEmail, password } = req.body;
 
-// Welcome route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Budget App API!');
-});
-
-// User registration
-app.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+      // Find user by username or email
+      const user = await User.findOne({ $or: [ { email: usernameOrEmail }] });
 
-    // Check if the username already exists
-    const checkUserQuery = 'SELECT * FROM users WHERE username = ?';
-    connection.query(checkUserQuery, [username], async (error, results) => {
-      if (error) {
-        console.error('Error checking user:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+      // If user not found, return error
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
       }
 
-      if (results.length > 0) {
-        return res.status(400).json({ message: 'Username already exists' });
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      // If password doesn't match, return error
+      if (!passwordMatch) {
+          return res.status(400).json({ message: 'Incorrect password' });
       }
 
-      // Hash the password
+      // Login successful, return success message or user data
+      res.status(200).json({ message: 'Login successful', user });
+  } catch (error) {
+      // Handle errors
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Registration route
+app.post('/register', async (req, res) => {
+  // Extract data from request body
+  const {  email, password } = req.body;
+
+  try {
+      // Check if user already exists
+      const existingUser = await User.findOne({ $or: [{ password }, { email }] });
+      if (existingUser) {
+          return res.status(400).json({ message: 'User already exists' });
+      }
+
+      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert the user into the database
-      const insertUserQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
-      connection.query(insertUserQuery, [username, hashedPassword], (error, results) => {
-        if (error) {
-          console.error('Error registering user:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-        res.status(201).json({ message: 'User registered successfully' });
-      });
-    });
+      // Create new user
+      // Inside the registration route handler in app.js
+      const newUser = new User({ email, password: hashedPassword });
+      await newUser.save();
+      console.log('New user created:', newUser); // Log the newly created user
+      res.status(201).json({ message: 'Registration successful' });
+
+
+      // Registration successful, return success message
+      res.status(201).json({ message: 'Registration successful' });
   } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+      // Handle errors
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// User login
-app.post('/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    // Retrieve user from the database
-    const getUserQuery = 'SELECT * FROM users WHERE username = ?';
-    connection.query(getUserQuery, [username], async (error, results) => {
-      if (error) {
-        console.error('Error retrieving user:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-      }
-
-      if (results.length === 0) {
-        return res.status(401).json({ message: 'Invalid username or password' });
-      }
-
-      const user = results[0];
-
-      // Verify the password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid username or password' });
-      }
-
-      // Generate JWT
-      const token = jwt.sign({ username: user.username }, 'your_secret_key_here');
-
-      res.status(200).json({ token });
-    });
-  } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// Add budget data
-app.post('/add-budget', (req, res) => {
-  try {
-    const { description, amount, inflow, outflow, balance } = req.body;
-    const username = req.user.username; // Assuming you have middleware to extract user from JWT
-
-    // Insert budget data into the database
-    const addBudgetQuery = 'INSERT INTO budget (username, description, amount, inflow, outflow, balance) VALUES (?, ?, ?, ?, ?, ?)';
-    connection.query(addBudgetQuery, [username, description, amount, inflow, outflow, balance], (error, results) => {
-      if (error) {
-        console.error('Error adding budget data:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-      }
-      res.status(201).json({ message: 'Budget data added successfully' });
-    });
-  } catch (error) {
-    console.error('Error adding budget data:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Start the server
+//PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

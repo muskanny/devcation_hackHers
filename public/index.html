@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Login & Registration</title>
+</head>
+<body>
+<div class="wrapper">
+    <nav class="nav">
+        <div class="nav-logo">
+            <p>Your Financial Advisor</p>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul>
+                <!-- The # symbol is used as the value of the href attribute. When a user clicks on this link, it typically doesn't navigate to a different page or location; instead, it refers to the current page itself. In other words, clicking on this link doesn't cause any navigation action to occur. -->
+                <li><a href="#" class="link active">Home</a></li>
+                <li><a href="form.html" class="link">Services</a></li>
+            </ul>
+        </div>
+        <div class="nav-button">
+            <button class="btn white-btn" id="loginBtn" onclick="toggleForm('login')">Sign In</button>
+            <button class="btn" id="registerBtn" onclick="toggleForm('register')">Sign Up</button>
+        </div>
+        <div class="nav-menu-btn">
+            <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+        </div>
+    </nav>
+
+    <div class="form-box">
+        <div class="login-container" id="login">
+            <div class="top">
+                <span>Don't have an account? <a href="#" onclick="toggleForm('register')">Sign Up</a></span>
+                <header>Login</header>
+            </div>
+            <form id="loginForm" onsubmit="submitForm(event, 'login')">
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Username or Email" name="usernameOrEmail">
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password" name="password">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input type="submit" class="submit" value="Sign In">
+                </div>
+            </form>
+            <div class="two-col">
+                <div class="one">
+                    <input type="checkbox" id="login-check">
+                    <label for="login-check"> Remember Me</label>
+                </div>
+                <div class="two">
+                    <label><a href="forgotpassword.html">Forgot password?</a></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-container" id="register">
+            <div class="top">
+                <span>Have an account? <a href="#" onclick="toggleForm('login')">Login</a></span>
+                <header>Sign Up</header>
+            </div>
+            <form id="registerForm" onsubmit="submitForm(event, 'register')">
+                <div class="two-forms">
+                    <div class="input-box">
+                        <input type="text" class="input-field" placeholder="Firstname" name="firstname">
+                        <i class="bx bx-user"></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" class="input-field" placeholder="Lastname" name="lastname">
+                        <i class="bx bx-user"></i>
+                    </div>
+                </div>
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Email" name="email">
+                    <i class="bx bx-envelope"></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password" name="password">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input type="submit" class="submit" value="Register">
+                </div>
+            </form>
+            <div class="two-col">
+                <div class="one">
+                    <input type="checkbox" id="register-check">
+                    <label for="register-check"> Remember Me</label>
+                </div>
+                <div class="two">
+                    <label><a href="#">Terms & conditions</a></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function myMenuFunction() {
+        var i = document.getElementById("navMenu");
+        if (i.className === "nav-menu") {
+            i.className += " responsive";
+        } else {
+            i.className = "nav-menu";
+        }
+    }
+
+    function toggleForm(form) {
+        var a = document.getElementById("loginBtn");
+        var b = document.getElementById("registerBtn");
+        var x = document.getElementById("login");
+        var y = document.getElementById("register");
+
+        if (form === 'login') {
+            x.style.left = "4px";
+            y.style.right = "-520px";
+            a.className += " white-btn";
+            b.className = "btn";
+            x.style.opacity = 1;
+            y.style.opacity = 0;
+        } else if (form === 'register') {
+            x.style.left = "-510px";
+            y.style.right = "5px";
+            a.className = "btn";
+            b.className += " white-btn";
+            x.style.opacity = 0;
+            y.style.opacity = 1;
+        }
+    }
+
+    async function submitForm(event, formType) {
+        event.preventDefault();
+        const form = formType === 'login' ? document.getElementById('loginForm') : document.getElementById('registerForm');
+        const formData = new FormData(form);
+        const formObject = {};
+        formData.forEach((value, key) => {
+            formObject[key] = value;
+        });
+
+        try {
+            const response = await fetch(`/${formType}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formObject)
+            });
+            const data = await response.json();
+            alert(data.message);
+            // You can redirect the user or perform any other actions based on the response
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+
+</body>
+</html>
