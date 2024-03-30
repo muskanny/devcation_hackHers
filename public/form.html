@@ -10,7 +10,7 @@
     <div class="form-container">
         <div class="container">
             <h1>Fill your details</h1>
-            <form>
+            <form id="registrationForm" onsubmit="submitForm(event)">
                 <div class="form-group">
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name" placeholder="Enter your name" required>
@@ -41,33 +41,58 @@
                 </div>
                 <div class="checkbox-group">
                     <label>Household Chores:</label><br>
-                    <input type="checkbox" id="electricity" name="electricity">
+                    <input type="checkbox" id="electricity" name="householdChores" value="Electricity Bill">
                     <label for="electricity">Electricity Bill</label><br>
-                    <input type="checkbox" id="water" name="water">
+                    <input type="checkbox" id="water" name="householdChores" value="Water Bill">
                     <label for="water">Water Bill</label><br>
-                    <input type="checkbox" id="gas" name="gas">
+                    <input type="checkbox" id="gas" name="householdChores" value="Gas Bill">
                     <label for="gas">Gas Bill</label><br>
                     <!-- Add more checkboxes as needed -->
                 </div>
                 <div class="checkbox-group">
                     <label>Goals:</label><br>
-                    <input type="checkbox" id="retirement" name="retirement">
+                    <input type="checkbox" id="retirement" name="goals" value="Retirement Savings">
                     <label for="retirement">Retirement Savings</label><br>
-                    <input type="checkbox" id="otherGoals" name="otherGoals">
+                    <input type="checkbox" id="otherGoals" name="goals" value="Other Goals">
                     <label for="otherGoals">Other Goals</label><br>
                     <!-- Add more checkboxes as needed -->
                 </div>
-                <button type="submit" class="submit-button"><a href="thankyou.html" class="link">
-                    Submit
-                </a></button>
-               
-
-            
-            
+                <button type="submit" class="submit-button">Submit</button>
             </form>
-
-
         </div>
     </div>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value,
+                gender: document.getElementById('gender').value,
+                age: document.getElementById('age').value,
+                address: document.getElementById('address').value,
+                income: document.getElementById('income').value,
+                expenses: document.getElementById('expenses').value,
+                householdChores: Array.from(document.querySelectorAll('input[name="householdChores"]:checked')).map(checkbox => checkbox.value),
+                goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(checkbox => checkbox.value)
+            };
+            
+            try {
+                const response = await fetch('/analysis/submitAnalysisData', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                alert(data.message); // Display response message
+                window.location.href = "suggestedInvestments.html"; // Redirect after form submission
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
 </body>
 </html>

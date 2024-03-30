@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./models/user'); // Import the User model
+const analysis = require('./analysis'); // Import the analysis router
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.use('/analysis', analysis);
 // Start the server
 //PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
