@@ -20,35 +20,39 @@ mongoose.connect('mongodb://localhost:27017/devcation', { useNewUrlParser: true,
     .catch(err => console.error(err));
 
     
-app.post('/login', async (req, res) => {
-  // Extract username/email and password from request body
-  const { usernameOrEmail, password } = req.body;
+    app.post('/login', async (req, res) => {
+        // Extract username/email and password from request body
+        const { usernameOrEmail, password } = req.body;
+      
+        try {
+            // Find user by username or email
+            const user = await User.findOne({ $or: [ { email: usernameOrEmail }] });
+      
+            // If user not found, return error
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+      
+            // Verify password
+            const passwordMatch = await bcrypt.compare(password, user.password);
+      
+            // If password doesn't match, return error
+            if (!passwordMatch) {
+                return res.status(400).json({ message: 'Incorrect password' });
+            }
+            //res.redirect('/home.html');
+            // Login successful, redirect to home page
+            res.status(201).json({ message: 'login successful' });
+            //res.redirect('C:\\Users\\Muskan Singh\\OneDrive\\Documents\\GitHub\\devcation_hackHers\\public\\home.html');
+        } 
+        catch (error) {
+            // Handle errors
+            console.error(error);
 
-  try {
-      // Find user by username or email
-      const user = await User.findOne({ $or: [ { email: usernameOrEmail }] });
-
-      // If user not found, return error
-      if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Verify password
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      // If password doesn't match, return error
-      if (!passwordMatch) {
-          return res.status(400).json({ message: 'Incorrect password' });
-      }
-
-      // Login successful, return success message or user data
-      res.status(200).json({ message: 'Login successful', user });
-  } catch (error) {
-      // Handle errors
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-  }
-});
+            res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+      
 
 // Registration route
 app.post('/register', async (req, res) => {
@@ -74,7 +78,7 @@ app.post('/register', async (req, res) => {
 
 
       // Registration successful, return success message
-      res.status(201).json({ message: 'Registration successful' });
+      //res.status(201).json({ message: 'Registration successful' });
   } catch (error) {
       // Handle errors
       console.error(error);
@@ -83,6 +87,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.use('/analysis', analysis);
+
 // Start the server
 //PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

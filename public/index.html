@@ -152,8 +152,13 @@
             });
             const data = await response.json();
             alert(data.message);
+            if (response.status === 201 && formType === 'login') {
+            // Redirect to home page after successful login
+            window.location.href = '/home.html';}
             // You can redirect the user or perform any other actions based on the response
-        } catch (error) {
+
+        } 
+        catch (error) {
             console.error('Error:', error);
         }
     }
