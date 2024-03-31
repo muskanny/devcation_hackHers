@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Plans and Policies</title>
+    <link rel="stylesheet" href="Plans.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Suggested Investment Schemes</h1>
+        <div id="result"></div>
+    </div>
+    <script src="\suggestedScheme.js"></script>
+
+    <script>
+        // Function to get query parameters from URL
+        function getQueryParams() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const amount = urlParams.get('amount');
+            const time = urlParams.get('time');
+            return { amount, time };
+        }
+
+        // Call the displayResults function with targetAmount and time values from URL query parameters
+        const { amount, time } = getQueryParams();
+        if (amount && time) {
+            displayResults(parseFloat(amount), parseInt(time));
+        } else {
+            console.error('Amount and time parameters are missing from the URL');
+        }
+    </script>
+    <div class="container">
+        <h1>Plans and Policies</h1>
+        <div class="policy-container">
+            <div class="policy-box">
+                <img src="policy1.png" >
+                <h2>Mahila Samman Savings Certificate</h2>
+                <p>The scheme “Mahila Samman Savings Certificate” was launched by the Department of Economic Affairs, Ministry of Finance to provide financial security to every girl and woman in India.
+                    Click below for Features, Benifits, Eligibility and Application Process.</p>
+                <a href="https://www.myscheme.gov.in/schemes/mssc" class="policy-link">Read More</a>
+            </div>
+            <div class="policy-box">
+                <img src="policy2.png" alt="Policy 2">
+                <h2>Public Provident Fund (PPF)</h2>
+                <p>The minimum annual investment required to open an SBI PPF account active starts from Rs. 500. The maximum investment allowed in the SBI PPF account is Rs. 1.5 lakhs annually. 
+                    Click below for Features, Benifits, Eligibility and Application Process.
+                </p>
+                <a href="https://sbi.co.in/web/personal-banking/investments-deposits/govt-schemes/ppf" class="policy-link">Read More</a>
+            </div>
+            <div class="policy-box">
+                <img src="policy3.png" alt="Policy 3">
+                <h2>Post Office Savings Schemes</h2>
+                <p>As the name suggests, the post office savings scheme includes saving instruments, offering several reliable and risk-free returns on investments. In India, you can open a savings account at a post office in several ways. 
+                    Click below for Features, Benifits, Eligibility and Application Process.
+                </p>
+                <a href="https://www.indiapost.gov.in/Financial/pages/content/post-office-saving-schemes.aspx" class="policy-link">Read More</a>
+            </div>
+            <div class="policy-box">
+                <img src="policy4.png" alt="Policy 4">
+                <h2>Kisan Vikas Patra (KVP)</h2>
+                <p>India Post introduced the Kisan Vikas Patra as a small saving certificate scheme in 1988. Its primary objective is to encourage long-term financial discipline in people. As per the latest update, the tenure for the scheme is now 115 months (9 years and 5 months).
+                    Click below for Features, Benifits, Eligibility and Application Process.
+                </p>
+                <a href="https://cleartax.in/s/kisan-vikas-patra" class="policy-link">Read More</a>
+            </div>
+        </div>
+        <div class="button-container">
+            <a href="thankyou.html" class="next-button">Next</a>
+        </div>
+    </div>
+</body>
+</html>

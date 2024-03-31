@@ -39,6 +39,14 @@
                     <label for="expenses">Total Spend on Household Chores:</label>
                     <input type="number" id="expenses" name="expenses" placeholder="Enter total spend on household chores" required>
                 </div>
+                <div class="form-group">
+                    <label for="amount">Target Amount:</label>
+                    <input type="number" id="amount" name="amount" placeholder="Enter target amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="time">Timeframe (months):</label>
+                    <input type="number" id="time" name="time" placeholder="Enter timeframe in months" required>
+                </div>
                 <div class="checkbox-group">
                     <label>Household Chores:</label><br>
                     <input type="checkbox" id="electricity" name="householdChores" value="Electricity Bill">
@@ -73,6 +81,8 @@
                 address: document.getElementById('address').value,
                 income: document.getElementById('income').value,
                 expenses: document.getElementById('expenses').value,
+                amount: document.getElementById('amount').value,
+                time: document.getElementById('time').value,
                 householdChores: Array.from(document.querySelectorAll('input[name="householdChores"]:checked')).map(checkbox => checkbox.value),
                 goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(checkbox => checkbox.value)
             };
@@ -88,7 +98,7 @@
                 
                 const data = await response.json();
                 alert(data.message); // Display response message
-                window.location.href = "suggestedInvestments.html"; // Redirect after form submission
+                window.location.href = `plans.html?amount=${formData.amount}&time=${formData.time}`; // Redirect after form submission
             } catch (error) {
                 console.error('Error:', error);
             }
